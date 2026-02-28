@@ -15,24 +15,21 @@ val_dir = os.path.join(data_dir, "val")
 
 data = {}
 for j, dir_ in enumerate([train_dir, val_dir]):
-    fetures = []
+    features = []
     labels = []
+    for category in os.listdir(dir_):
+        for img_path in os.listdir(os.path.join(dir_, category)):
+            img_path_ = os.path.join(dir_, category, img_path)
+            img = Image.open(img_path_).convert('RGB')
 
-    for dir_ in [train_dir, val_dir]:
-        
-        for category in os.listdir(dir_):
-            for img_path in os.listdir(os.path.join(dir_, category)):
-                img_path_ = os.path.join(dir_, category, img_path)
-                img = Image.open(img_path_).convert("RGB")
+            img_features = Img2Vec.get_vec(img)
 
-                img_fetures = Img2Vec.get_vec(img)
+            features.append(img_features)
+            labels.append(category)
 
-                fetures.append(img_fetures)
-                labels.append(category)
-
-    data[['training_data', 'validation_data'][j]] = fetures
+    data[['training_data', 'validation_data'][j]] = features
     data[['training_labels', 'validation_labels'][j]] = labels
-    
+
 
 # train model
 model = RandomForestClassifier()
@@ -47,7 +44,7 @@ report = classification_report(y_predictions, data['validation_labels'])
 print(f"Accuracy: {accuracy}")
 print(f"Classification Report:\n{report}")
 
-#save model
+#save model 
 with open("./random_forest_model.pkl", "wb") as f:
     pkl.dump(model, f)
     f.close()
